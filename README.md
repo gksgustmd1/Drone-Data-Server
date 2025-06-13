@@ -73,15 +73,17 @@ Flask-SQLAlchemy   3.1.1
 
 ```
 Drone-Data-Server/
-├── __pycache__/           # Python 캐시 디렉토리 (자동 생성)
-├── check_license.py       # Flask 메인 서버 (라이센스 인증 및 로그 업로드 포함)
-├── config.py              # Flask 설정 정의
-├── create_db.py           # SQLite DB 및 테이블 초기화 스크립트
-├── create_licence.py      # 라이센스 키 등록 스크립트
-├── firmwares/             # 펌웨어 파일 저장 디렉토리
-│   └── test.txt           # 예제 펌웨어 파일 (또는 firmware.bin 등)
-├── license.db             # SQLite DB 파일 (시리얼 키 저장)
-└── schema.py              # SQLAlchemy 모델 정의 (License 테이블 등)
+├── README.md                    # 프로젝트 개요 및 사용법 설명 문서
+├── __pycache__/                 # Python이 자동 생성하는 바이트코드 캐시 디렉토리
+├── check_license.py             # Flask 서버 메인 파일 (라이센스 검증, 로그 업로드 등 HTTP API 제공)
+├── config.py                    # 데이터베이스 및 경로 등 설정을 담은 Flask Config 클래스
+├── create_db.py                 # license.db SQLite 데이터베이스(license 테이블) 생성 스크립트
+├── create_license.py            # 새로운 라이센스 정보를 DB에 삽입하는 유틸리티 스크립트
+├── firmwares/                   # 장비가 다운로드할 펌웨어 파일이 저장되는 디렉토리
+│   └── test.txt                 # 예제 펌웨어 파일 (또는 firmware.bin 등)
+├── license.db                   # SQLite3로 만든 실제 라이센스 데이터베이스 파일
+├── schema.py                    # SQLAlchemy 모델 정의 (License 클래스 등 포함)
+└── start_check_license.sh       # 부팅 시 check_license.py를 자동으로 실행시키는 서비스 등록 파일 (가상환경 활성화 포함)
 ```
 
 ---
