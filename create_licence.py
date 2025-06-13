@@ -1,12 +1,22 @@
+import sys
 from flask import Flask
 from config import Config
 from schema import db, License
 from datetime import datetime, timedelta, timezone
 
 #define data (fake..)
-model = 'ModelA'
-serial = 'ABC123456789'
-firmware_version = 'v1.0.0'
+#model = 'ModelA'
+#serial = 'ABC123456789'
+#firmware_version = 'v1.0.0'
+#valid_until = datetime.now(timezone.utc).date() + timedelta(days=365)
+
+if len(sys.argv) != 4:
+    print("use : python3 create_licence.py <model> <serial> <firmware_version>")
+    sys.exit(1)
+
+model = sys.argv[1]
+serial = sys.argv[2]
+firmware_version = sys.argv[3]
 valid_until = datetime.now(timezone.utc).date() + timedelta(days=365)
 
 # Flask setting
