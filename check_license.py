@@ -3,10 +3,25 @@ from config import Config
 from schema import db, License
 from datetime import datetime
 import os
+import logging
 
 app = Flask(__name__)
 app.config.from_object(Config)
 db.init_app(app)
+
+#write log file
+LOG_FILE_PATH = '/var/log/dstl.log'
+
+logging.basicConfig(
+    filename=LOG_FILE_PATH,
+    level=logging.INFO,
+    format='%(asctime)s [%(levelname)s] %(message)s'
+)
+
+file_handler = logging.FileHandler(LOG_FILE_PATH)
+file_handler.setLevel(logging.INFO)
+app.logger.addHandler(file_handler)
+app.logger.setLevel(logging.INFO)
 
 #check firmware
 FIRMWARE_FOLDER = 'firmwares'
@@ -19,19 +34,20 @@ LOG_ROOT = '/root/Drone-log-data'
 @app.route('/check_license', methods=['POST'])
 def check_license():
     data = request.get_json()
+    app.logger.info(f"POST /check_license - Payload: {data}")
+
     if not data or 'serial' not in data:
+        app.logger.warning("Missing serial in request")
         return jsonify({'error': 'Missing serial'}), 400
 
     serial = data['serial']
     license_entry = License.query.filter_by(serial=serial).first()
 
     if license_entry:
+        app.logger.info(f"Valid serial: {serial} - Redirecting to firmware")
         return redirect(FIRMWARE_URL, code=302)
-#        return jsonify({
-#            'status': 'valid',
-#            'firmware_url': FIRMWARE_URL
-#        }), 200
     else:
+        app.logger.warning(f"Invalid serial: {serial}")
         return jsonify({'status': 'invalid'}), 403
 
 
@@ -40,9 +56,10 @@ def check_license():
 def download_firmware(filename):
     file_path = os.path.join(FIRMWARE_FOLDER, filename)
     if os.path.exists(file_path):
-        from flask import send_file
+        app.logger.info(f"Download request: {filename}")
         return send_file(file_path, as_attachment=True)
     else:
+        app.logger.warning(f"File not found: {filename}")
         return "File not found", 404
 
 #log data write
@@ -51,7 +68,10 @@ def upload_log():
     serial = request.form.get('serial')
     file = request.files.get('log_file')
 
+    app.logger.info(f"POST /upload_log - Serial: {serial}, File attached: {bool(file)}")
+
     if not serial or not file:
+        app.logger.warning("Missing serial or log_file")
         return "Missing serial or log_file", 400
 
     #create license dir 
@@ -64,8 +84,11 @@ def upload_log():
     save_path = os.path.join(save_dir, filename)
 
     file.save(save_path)
+    app.logger.info(f"Log file saved to {save_path}")
 
     return f"Log saved to {save_path}", 200
+
+
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000)
