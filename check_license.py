@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify, redirect
+from flask import Flask, request, jsonify, redirect, send_file
 from config import Config
 from schema import db, License
 from datetime import datetime
@@ -24,7 +24,8 @@ app.logger.addHandler(file_handler)
 app.logger.setLevel(logging.INFO)
 
 #check firmware
-FIRMWARE_FOLDER = 'firmwares'
+#FIRMWARE_FOLDER = 'firmwares'
+FIRMWARE_FOLDER = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'firmwares')
 FIRMWARE_FILENAME = 'test.txt'  
 FIRMWARE_URL = f'http://52.78.137.212:5000/download/{FIRMWARE_FILENAME}'  
 
@@ -55,6 +56,7 @@ def check_license():
 @app.route('/download/<filename>')
 def download_firmware(filename):
     file_path = os.path.join(FIRMWARE_FOLDER, filename)
+    app.logger.info(f"Resolved file_path: {file_path}")
     if os.path.exists(file_path):
         app.logger.info(f"Download request: {filename}")
         return send_file(file_path, as_attachment=True)
